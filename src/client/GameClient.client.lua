@@ -31,6 +31,7 @@ cashLabel.BackgroundTransparency = 1
 cashLabel.TextColor3 = Color3.new(1, 1, 1)
 cashLabel.TextScaled = true
 cashLabel.Font = Enum.Font.GothamBold
+cashLabel.Text = "Carregando..."
 cashLabel.Parent = panel
 
 local hint = Instance.new("TextLabel")

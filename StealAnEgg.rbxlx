@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="4">
   <External>null</External><External>nil</External>
-  <Item class="Workspace" referent="RBX9"><Properties><string name="Name">Workspace</string></Properties></Item><Item class="ReplicatedStorage" referent="RBX3"><Properties><string name="Name">ReplicatedStorage</string></Properties><Item class="Folder" referent="RBX2"><Properties><string name="Name">Shared</string></Properties><Item class="ModuleScript" referent="RBX1"><Properties><ProtectedString name="Source"><![CDATA[local Config = {}
+  <Item class="Workspace" referent="RBX9"><Properties><string name="Name">Workspace</string></Properties></Item><Item class="ReplicatedStorage" referent="RBX3"><Properties><string name="Name">ReplicatedStorage</string></Properties><Item class="Folder" referent="RBX2"><Properties><string name="Name">Shared</string></Properties><Item class="ModuleScript" referent="RBX1"><Properties><bool name="Disabled">false</bool><ProtectedString name="Source"><![CDATA[local Config = {}
 
 Config.StartingCash = 250
 Config.MaxEggs = 8
@@ -25,13 +25,16 @@ function Config.GetEgg(id)
 end
 
 return Config
-]]></ProtectedString><string name="Name">Config</string></Properties></Item></Item></Item><Item class="ServerScriptService" referent="RBX5"><Properties><string name="Name">ServerScriptService</string></Properties><Item class="Script" referent="RBX4"><Properties><ProtectedString name="Source"><![CDATA[local Players = game:GetService("Players")
+]]></ProtectedString><string name="Name">Config</string></Properties></Item></Item></Item><Item class="ServerScriptService" referent="RBX5"><Properties><string name="Name">ServerScriptService</string></Properties><Item class="Script" referent="RBX4"><Properties><bool name="Disabled">false</bool><ProtectedString name="Source"><![CDATA[local Players = game:GetService("Players")
 local DataStoreService = game:GetService("DataStoreService")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
-local store = DataStoreService:GetDataStore(Config.SaveKey)
+local store
+pcall(function()
+	store = DataStoreService:GetDataStore(Config.SaveKey)
+end)
 
 local world = Instance.new("Folder")
 world.Name = "EggWorld"
@@ -230,7 +233,7 @@ buildWorld()
 
 local function loadProfile(player)
 	local data
-	local ok = pcall(function() data = store:GetAsync(tostring(player.UserId)) end)
+	local ok = store ~= nil and pcall(function() data = store:GetAsync(tostring(player.UserId)) end)
 	if not ok or type(data) ~= "table" then data = {} end
 	local eggs = {}
 	for _, id in data.eggs or {} do
@@ -241,7 +244,7 @@ end
 
 local function saveProfile(player)
 	local profile = getProfile(player)
-	if not profile then return end
+	if not profile or not store then return end
 	pcall(function()
 		store:UpdateAsync(tostring(player.UserId), function()
 			return { cash = math.floor(profile.cash), eggs = profile.eggs }
@@ -321,7 +324,7 @@ end)
 game:BindToClose(function()
 	for _, player in Players:GetPlayers() do saveProfile(player) end
 end)
-]]></ProtectedString><string name="Name">GameServer</string></Properties></Item></Item><Item class="StarterPlayer" referent="RBX8"><Properties><string name="Name">StarterPlayer</string></Properties><Item class="StarterPlayerScripts" referent="RBX7"><Properties><string name="Name">StarterPlayerScripts</string></Properties><Item class="LocalScript" referent="RBX6"><Properties><ProtectedString name="Source"><![CDATA[local Players = game:GetService("Players")
+]]></ProtectedString><string name="Name">GameServer</string></Properties></Item></Item><Item class="StarterPlayer" referent="RBX8"><Properties><string name="Name">StarterPlayer</string></Properties><Item class="StarterPlayerScripts" referent="RBX7"><Properties><string name="Name">StarterPlayerScripts</string></Properties><Item class="LocalScript" referent="RBX6"><Properties><bool name="Disabled">false</bool><ProtectedString name="Source"><![CDATA[local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
 local gui = Instance.new("ScreenGui")
@@ -354,6 +357,7 @@ cashLabel.BackgroundTransparency = 1
 cashLabel.TextColor3 = Color3.new(1, 1, 1)
 cashLabel.TextScaled = true
 cashLabel.Font = Enum.Font.GothamBold
+cashLabel.Text = "Carregando..."
 cashLabel.Parent = panel
 
 local hint = Instance.new("TextLabel")

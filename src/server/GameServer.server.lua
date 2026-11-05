@@ -4,7 +4,10 @@ local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
-local store = DataStoreService:GetDataStore(Config.SaveKey)
+local store
+pcall(function()
+	store = DataStoreService:GetDataStore(Config.SaveKey)
+end)
 
 local world = Instance.new("Folder")
 world.Name = "EggWorld"
@@ -203,7 +206,7 @@ buildWorld()
 
 local function loadProfile(player)
 	local data
-	local ok = pcall(function() data = store:GetAsync(tostring(player.UserId)) end)
+	local ok = store ~= nil and pcall(function() data = store:GetAsync(tostring(player.UserId)) end)
 	if not ok or type(data) ~= "table" then data = {} end
 	local eggs = {}
 	for _, id in data.eggs or {} do
@@ -214,7 +217,7 @@ end
 
 local function saveProfile(player)
 	local profile = getProfile(player)
-	if not profile then return end
+	if not profile or not store then return end
 	pcall(function()
 		store:UpdateAsync(tostring(player.UserId), function()
 			return { cash = math.floor(profile.cash), eggs = profile.eggs }

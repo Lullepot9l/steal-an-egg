@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 const root = resolve(import.meta.dirname, "..");
 const source = (path) => readFileSync(resolve(root, path), "utf8").replaceAll("]]>", "]] ]]><![CDATA[>");
 const id = (() => { let value = 0; return () => `RBX${++value}`; })();
-const script = (className, name, path) => `<Item class="${className}" referent="${id()}"><Properties><ProtectedString name="Source"><![CDATA[${source(path)}]]></ProtectedString><string name="Name">${name}</string></Properties></Item>`;
+const script = (className, name, path) => `<Item class="${className}" referent="${id()}"><Properties><bool name="Disabled">false</bool><ProtectedString name="Source"><![CDATA[${source(path)}]]></ProtectedString><string name="Name">${name}</string></Properties></Item>`;
 const folder = (className, name, children) => `<Item class="${className}" referent="${id()}"><Properties><string name="Name">${name}</string></Properties>${children}</Item>`;
 
 const shared = folder("Folder", "Shared", script("ModuleScript", "Config", "src/shared/Config.lua"));
